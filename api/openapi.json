@@ -39,16 +39,21 @@
         "type": "object", "additionalProperties": false,
         "required": ["kind", "external_id", "occurred_at"],
         "properties": {
-          "kind": {"type": "string", "enum": ["deployment", "incident"]},
+          "kind": {"type": "string", "enum": ["deployment", "incident", "restoration"]},
           "external_id": {"type": "string", "minLength": 1, "maxLength": 160},
           "occurred_at": {"type": "string", "format": "date-time"},
           "environment": {"type": "string", "default": "production"},
           "outcome": {"type": "string", "enum": ["success", "failure"], "default": "success"},
+          "commit_scope": {"type": "string", "enum": ["complete", "head_only", "unknown"], "default": "unknown"},
           "commits": {"type": "array", "maxItems": 200, "items": {"$ref": "#/components/schemas/Commit"}},
           "deployment_id": {"type": ["string", "null"], "maxLength": 160},
+          "incident_id": {"type": ["string", "null"], "maxLength": 160},
           "restored_at": {"type": ["string", "null"], "format": "date-time"}
         },
-        "allOf": [{"if": {"properties": {"kind": {"const": "incident"}}}, "then": {"required": ["deployment_id"], "properties": {"deployment_id": {"type": "string", "minLength": 1}}}}]
+        "allOf": [
+          {"if": {"properties": {"kind": {"const": "incident"}}}, "then": {"required": ["deployment_id"], "properties": {"deployment_id": {"type": "string", "minLength": 1}}}},
+          {"if": {"properties": {"kind": {"const": "restoration"}}}, "then": {"required": ["incident_id"], "properties": {"incident_id": {"type": "string", "minLength": 1}}}}
+        ]
       },
       "Receipt": {"type": "object", "required": ["event_id", "status", "duplicate"], "properties": {"event_id": {"type": "string", "format": "uuid"}, "status": {"type": "string"}, "duplicate": {"type": "boolean"}}},
       "EventPage": {"type": "object", "required": ["items", "next_cursor"], "properties": {"items": {"type": "array", "items": {"type": "object", "required": ["event_id", "kind", "status", "received_at"]}}, "next_cursor": {"type": ["string", "null"]}}}
