@@ -1,0 +1,129 @@
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "53 5 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CONTAINER_IMAGE: beaconforge:ci
+  TRIVY_VERSION: v0.74.0
+  TRIVY_SEVERITY: HIGH,CRITICAL
+
+jobs:
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  codeql:
+    name: codeql
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938
+        with:
+          languages: go
+          build-mode: manual
+          queries: security-extended
+      - name: Build for code analysis
+        run: go build ./cmd/api
+      - uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938
+
+  dependency-review:
+    name: dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+        with:
+          fail-on-severity: high
+
+  filesystem:
+    name: filesystem security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          version: ${{ env.TRIVY_VERSION }}
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig
+          severity: ${{ env.TRIVY_SEVERITY }}
+          exit-code: '1'
+          format: table
+          skip-dirs: .git,.tmp
+          cache: false
+
+  container:
+    name: container security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build container
+        run: docker build --tag "$CONTAINER_IMAGE" .
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          version: ${{ env.TRIVY_VERSION }}
+          image-ref: ${{ env.CONTAINER_IMAGE }}
+          scanners: vuln
+          severity: ${{ env.TRIVY_SEVERITY }}
+          exit-code: '1'
+          format: table
+          cache: false
+      - name: Run restricted container
+        run: |
+          docker run --detach --name beaconforge-smoke \
+            --read-only --cap-drop=ALL \
+            --security-opt=no-new-privileges:true \
+            --pids-limit=64 --memory=128m --cpus=1 \
+            --publish 127.0.0.1:8080:8080 "$CONTAINER_IMAGE"
+      - name: Verify container readiness
+        shell: bash
+        run: |
+          curl --fail --silent --show-error \
+            --retry 5 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:8080/health/ready | jq -e '.status == "ready"'
+      - name: Remove test container
+        if: always()
+        run: docker rm --force beaconforge-smoke

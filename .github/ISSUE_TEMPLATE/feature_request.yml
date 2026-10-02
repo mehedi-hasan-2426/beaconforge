@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a focused improvement to BeaconForge.
+body:
+  - type: markdown
+    attributes:
+      value: Check existing requests and the README roadmap first. Prefer one independently testable outcome over a large list of tools.
+  - type: checkboxes
+    id: preparation
+    attributes:
+      label: Before requesting
+      options:
+        - label: I searched existing issues and checked the current roadmap.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the limitation and who it affects.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe observable behaviour that would make the improvement useful.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Cost and operational considerations
+      description: Note any new dependencies, credentials, cloud cost, compatibility changes, or recovery needs.

@@ -1,0 +1,35 @@
+{
+  "minimumFreeGB": 10,
+  "charts": [
+    {
+      "name": "kube-prometheus-stack",
+      "version": "91.8.2",
+      "url": "https://github.com/prometheus-community/helm-charts/releases/download/kube-prometheus-stack-91.8.2/kube-prometheus-stack-91.8.2.tgz",
+      "sha256": "dbd50ecc4b3c4a0231d8a7c766d4fd8690be4bf2230acb572849fae129797a23"
+    },
+    {
+      "name": "argo-cd",
+      "version": "10.9.6",
+      "url": "https://github.com/argoproj/argo-helm/releases/download/argo-cd-10.9.6/argo-cd-10.9.6.tgz",
+      "sha256": "6eda90bdd18de538511c9b9aca1ca7ba7a1ca5b919f598714d0e91cd7155d119"
+    },
+    {
+      "name": "cloudnative-pg",
+      "version": "0.29.1",
+      "url": "https://github.com/cloudnative-pg/charts/releases/download/cloudnative-pg-v0.29.1/cloudnative-pg-0.29.1.tgz",
+      "sha256": "b53d3991fe84bcf38767e7702cae78666265427a127a26fff168ab4207d2b1df"
+    },
+    {
+      "name": "cluster",
+      "version": "0.8.1",
+      "url": "https://github.com/cloudnative-pg/charts/releases/download/cluster-v0.8.1/cluster-0.8.1.tgz",
+      "sha256": "c4387533e66581a293ea2592837a645e00be8c2fcc16c1520c1f775b3cce1d7e"
+    },
+    {
+      "name": "opentelemetry-collector",
+      "version": "0.174.0",
+      "url": "https://github.com/open-telemetry/opentelemetry-helm-charts/releases/download/opentelemetry-collector-0.174.0/opentelemetry-collector-0.174.0.tgz",
+      "sha256": "8ed99b13f04a169f16166a40f7299a59fe523914c07ae3f3b1eef7e04b974980"
+    }
+  ]
+}

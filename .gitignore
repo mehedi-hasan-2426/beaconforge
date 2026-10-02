@@ -1,0 +1,8 @@
+.tmp/
+.env
+.env.*
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform/
+coverage.out

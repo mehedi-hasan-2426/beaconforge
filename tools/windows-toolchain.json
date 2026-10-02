@@ -1,0 +1,50 @@
+{
+  "minimumFreeGB": 10,
+  "tools": [
+    {
+      "name": "kubectl",
+      "version": "v1.37.1",
+      "url": "https://dl.k8s.io/release/v1.37.1/bin/windows/amd64/kubectl.exe",
+      "sha256": "14b93c4916a6f37a06fbc1f46b0a1d2404c4f9741be09f00d6caf8af3b05f1d3",
+      "archive": "none",
+      "executable": "kubectl.exe",
+      "estimatedMB": 100
+    },
+    {
+      "name": "kind",
+      "version": "v0.33.0",
+      "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-windows-amd64",
+      "sha256": "4b22adaa135368c5a465d56bbd8e520cbea87272a06ca00b6078e7b81515c9fc",
+      "archive": "none",
+      "executable": "kind.exe",
+      "estimatedMB": 30
+    },
+    {
+      "name": "helm",
+      "version": "v4.3.0",
+      "url": "https://get.helm.sh/helm-v4.3.0-windows-amd64.zip",
+      "sha256": "304ea163cce4d9ad14e189c01846c6a34de9cfdfe48536ae54b2e8ba7884e67c",
+      "archive": "zip",
+      "executable": "helm.exe",
+      "estimatedMB": 150
+    },
+    {
+      "name": "argocd",
+      "version": "v3.5.3",
+      "url": "https://github.com/argoproj/argo-cd/releases/download/v3.5.3/argocd-windows-amd64.exe",
+      "sha256": "c7c5a152fe865f2262f4bb19eda66baf590cc18e0e125a902ba6942cbeee92e9",
+      "archive": "none",
+      "executable": "argocd.exe",
+      "estimatedMB": 300
+    },
+    {
+      "name": "podman",
+      "version": "v6.1.3",
+      "url": "https://github.com/podman-container-tools/podman/releases/download/v6.1.3/podman-remote-release-windows_amd64.zip",
+      "sha256": "bb98562f5faf0df3f28bab7fb517ea9e2d807817978bfa9f68982b75e6e59c40",
+      "archive": "zip",
+      "executable": "podman.exe",
+      "estimatedMB": 200
+    }
+  ]
+}

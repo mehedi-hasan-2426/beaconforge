@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a reproducible problem with BeaconForge.
+body:
+  - type: markdown
+    attributes:
+      C:\GIT\production-reference-platformalue: Search existing reports first. Do not disclose vulnerabilities or secrets here; follow SECURITY.md instead.
+  - type: checkboxes
+    id: preparation
+    attributes:
+      label: Before reporting
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: This report contains no credentials, private data, or exploit details.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      description: Include the affected commit or release. Say unknown if unavailable.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include operating system, project Go toolchain, and whether you ran the executable or container.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest safe reproduction using synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Redact secrets and private information before including logs.
+      render: text
