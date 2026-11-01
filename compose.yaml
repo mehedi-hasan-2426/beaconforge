@@ -1,0 +1,86 @@
+name: beaconforge
+
+x-application: &application
+  build:
+    context: .
+    dockerfile: Dockerfile.dora
+  image: beaconforge-dora:local
+  environment:
+    BEACONFORGE_DATABASE_URL: postgresql+psycopg://beaconforge:${POSTGRES_PASSWORD:?Run scripts/prepare-local.ps1 first}@postgres:5432/beaconforge
+    BEACONFORGE_BROKER_URL: amqp://beaconforge:${RABBITMQ_PASSWORD:?Run scripts/prepare-local.ps1 first}@rabbitmq:5672//
+  depends_on:
+    postgres:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: [/tmp]
+  mem_limit: 512m
+  cpus: 1.0
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_DB: beaconforge
+      POSTGRES_USER: beaconforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/prepare-local.ps1 first}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U beaconforge -d beaconforge"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    mem_limit: 512m
+  rabbitmq:
+    image: rabbitmq:4-alpine@sha256:9a5494b32def2c288a755c933ea2ffd7f4a28647f7648776ad8b15507493f702
+    environment:
+      RABBITMQ_DEFAULT_USER: beaconforge
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Run scripts/prepare-local.ps1 first}
+    volumes: [rabbitmq-data:/var/lib/rabbitmq]
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    mem_limit: 512m
+  initialize:
+    <<: *application
+    command: [beaconforge, init-db]
+    restart: "no"
+  api:
+    <<: *application
+    depends_on:
+      postgres:
+        condition: service_healthy
+      initialize:
+        condition: service_completed_successfully
+    ports: ["127.0.0.1:8081:8081"]
+    volumes: ["./.local:/app/.local"]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  worker:
+    <<: *application
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    command: [celery, -A, beaconforge.worker:celery, worker, --loglevel=WARNING, --concurrency=2, -Q, beaconforge.events]
+  outbox:
+    <<: *application
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    command: [python, -m, beaconforge.worker]
+
+volumes:
+  postgres-data:
+  rabbitmq-data:

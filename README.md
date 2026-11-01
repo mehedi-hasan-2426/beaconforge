@@ -4,12 +4,73 @@
   <img src="assets/beaconforge.svg" alt="BeaconForge beacon logo" width="120" height="120">
 </p>
 
-A small Go HTTP service for practising health checks, container packaging, and
-graceful shutdown.
+BeaconForge is being adapted into a local-first Python DORA metrics service.
+The existing Go reference service is preserved below.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-14b8a6)](LICENSE)
 [![CI configured](https://img.shields.io/badge/CI-configured-64748b)](.github/workflows/ci.yml)
 [![Security checks configured](https://img.shields.io/badge/security-configured-64748b)](.github/workflows/security.yml)
+
+## DORA prototype status
+
+The Python pivot is unfinished and should not be used as a production service.
+Current source includes FastAPI ingestion, PostgreSQL models, project-scoped keys,
+HMAC verification, a transactional outbox, Celery processing, replay, daily metric
+projections, and a local GitHub deployment collector. Deployment and incident
+coverage remain explicit; missing evidence is not reported as a zero metric.
+
+Read the [metric definitions](docs/metrics.md),
+[API contract](api/openapi.json), [threat model](docs/threat-model.md), and
+[design decisions](docs/design-decisions.md) before extending it.
+
+The intended local stack is defined in [compose.yaml](compose.yaml) and
+[Dockerfile.dora](Dockerfile.dora). It publishes only `127.0.0.1:8081`; PostgreSQL
+and RabbitMQ are internal services. No cloud resources are involved.
+
+### Recorded verification and blocker
+
+The focused Python checks passed: 16 tests, ruff, strict mypy, and Bandit. The
+Python wheel includes the API contract, and the Python container image built
+successfully. These are not proof that the full application works end to end.
+
+Local rootless Podman/WSL startup failed while enforcing resource limits:
+
+```text
+crun: open memory.max for writing: No such file or directory
+```
+
+The failed containers and network were removed; database and broker volumes were
+retained. Resource limits and TLS verification were not disabled. The local
+kernel reports a memory controller, so rootless cgroup delegation or runtime
+configuration needs investigation. Full PostgreSQL/RabbitMQ integration, real
+repository collection, schema fuzzing, load measurements, dependency auditing,
+SBOM generation, and the full coverage gate are not yet verified.
+
+Local `.env` credentials, `.local` data and trust bundles, virtual environments,
+and generated images or artifacts must never be committed. A process-specific
+bundle of existing Windows-trusted roots was used for verified image downloads
+and a build secret; no system trust store was modified.
+
+### Python development
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -e ".[dev]"
+.\.venv\Scripts\ruff check src tests
+.\.venv\Scripts\mypy
+.\.venv\Scripts\bandit -r src -q
+.\.venv\Scripts\python -m pytest
+```
+
+`pytest` enforces an 85% coverage floor. The prototype's recorded focused runs
+are not a claim that this full gate passes. Resume runtime work with the resource
+limits intact, then complete integration, contract, and operational checks before
+declaring v1 finished. The collector must not invent deployments or incidents to
+fill missing metrics.
+
+## Legacy Go reference service
+
+The following instructions apply to the original Go example, not the DORA API.
 
 ## Purpose
 
@@ -18,10 +79,9 @@ stop a service. It returns JSON from three endpoints, validates its configuratio
 and writes request logs to standard output. You can run it directly with Go or
 use its container definition without an AWS account.
 
-This is a learning project, not a complete platform or a business API. It has no
+The Go example is a learning project, not a complete platform or a business API. It has no
 database, authentication, TLS, metrics exporter, or Kubernetes deployment. The
-repository is not published yet; the badges describe configured workflows, not
-successful GitHub runs.
+badges describe configured workflows, not verified GitHub results.
 
 ## Architecture
 

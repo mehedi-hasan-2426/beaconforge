@@ -6,6 +6,13 @@ BeaconForge is a local learning and reference project, not a supported public
 production service. The current development line is the supported scope; there
 are no released versions or long-term support branches yet.
 
+The Python DORA pivot is an unfinished prototype alongside the legacy Go service.
+Its controls and trust boundaries are documented in
+[docs/threat-model.md](docs/threat-model.md). The Go-only boundaries below do not
+describe the Python API. PostgreSQL integration, broker failure handling, full
+coverage, dependency auditing, schema fuzzing, and load testing remain incomplete.
+Neither implementation should be exposed publicly or used with sensitive data.
+
 ## Reporting a Vulnerability
 
 After publication, use GitHub's private vulnerability reporting through the

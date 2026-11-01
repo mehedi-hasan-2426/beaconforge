@@ -4,3 +4,8 @@
 !cmd/**
 !internal/
 !internal/**
+!pyproject.toml
+!src/
+!src/**
+!api/
+!api/**
