@@ -56,7 +56,7 @@ jobs:
           build-mode: manual
           queries: security-extended
       - name: Build for code analysis
-        run: go build ./cmd/api
+        run: go build -o /dev/null ./cmd/api
       - uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938
 
   dependency-review:
