@@ -30,6 +30,7 @@ func serve(ctx context.Context, listener net.Listener, config Config, logger *sl
 		MaxHeaderBytes:    16 * 1024,
 		ErrorLog:          slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
+	defer server.Close()
 	result := make(chan error, 1)
 	api.SetReady(true)
 	go func() {
