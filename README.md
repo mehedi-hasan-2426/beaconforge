@@ -74,8 +74,9 @@ with `Ctrl+C`.
 | `GET /health/ready` | 200 when ready, 503 otherwise | `{"status":"ready"}` or `{"status":"not_ready"}` |
 
 Readiness is an in-process flag. It does not check a database or another service.
-Shutdown withdraws readiness and stops accepting new connections. Unknown paths
-return 404; unsupported methods on these paths return 405.
+Shutdown withdraws readiness and stops accepting new connections. If the listener
+fails, the service closes accepted connections before returning an error. Unknown
+paths return 404; unsupported methods on these paths return 405.
 
 Request logs contain the method, response status, and duration. They omit paths,
 query strings, request headers, and bodies. Responses include `Cache-Control:
