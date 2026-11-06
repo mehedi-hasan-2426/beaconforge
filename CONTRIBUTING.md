@@ -89,7 +89,8 @@ Versions, URLs, and SHA-256 hashes live in
 [windows-toolchain.json](tools/windows-toolchain.json) and
 [helm-charts.json](tools/helm-charts.json). Update those manifests from upstream
 release metadata rather than changing the downloader's implementation. These
-pins need manual maintenance; Dependabot does not update them.
+pins need manual maintenance; the standard Renovate managers do not update these
+custom manifests.
 
 Both helpers check host free space and protect a 10 GB reserve before downloads.
 That is a download guard, not a capacity guarantee for a cluster. Container images,
@@ -147,11 +148,18 @@ Required checks and branch protection must be configured in GitHub. The presence
 of workflow files alone does not enforce them. Do not claim hosted CI passed when
 you have only validated its syntax locally.
 
-On publication, enable available Dependabot alerts, security updates, secret
+On publication, enable available Dependabot alerts, secret
 scanning, push protection, and private vulnerability reporting. Restrict changes
 to `main` through pull requests and require the job names that actually run.
 Use code-scanning merge protection where available; a successful CodeQL job does
 not by itself mean that it found no alerts.
+
+[Renovate](renovate.json) replaces Dependabot version-update PRs after the
+[GitHub App](https://github.com/apps/renovate) is installed for this repository.
+Routine updates are grouped by manager before 06:00 Monday, Europe/Berlin, with
+a three-day release-age delay. Vulnerability PRs bypass that delay and schedule.
+All PRs require manual review and passing checks; major upgrades first require
+Dependency Dashboard approval. Keep vulnerability alerts and security scans enabled.
 
 ## Commits and Licensing
 
