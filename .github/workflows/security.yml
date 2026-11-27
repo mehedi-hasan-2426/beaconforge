@@ -46,18 +46,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5
         with:
           go-version-file: go.mod
           cache: false
-      - uses: github/codeql-action/init@1fc58d04a4d4374f921bdac573c3811c240f9c26
+      - uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934
         with:
           languages: go
           build-mode: manual
           queries: security-extended
       - name: Build for code analysis
         run: go build ./cmd/api
-      - uses: github/codeql-action/analyze@1fc58d04a4d4374f921bdac573c3811c240f9c26
+      - uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934
 
   dependency-review:
     name: dependency review
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec
         with:
           fail-on-severity: high
 
